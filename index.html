@@ -28,6 +28,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 2;
     }
     .header-content {
       display: flex;
@@ -39,17 +40,44 @@
       width: auto;
     }
     .container {
-      padding: 0 20px;
-      max-width: 1400px;
       margin: 0 auto;
       max-height: calc(100vh - 160px - 20px);
       overflow-y: auto;
+
+      width: 100vw;
+      max-width: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
+    }
+
+    .container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .container::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: transparent;
+    }
+    .container::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.25);
+      border-radius: 8px;
+      background: transparent;
     }
     .message-wrapper {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       margin-bottom: 12px;
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 20px;
+      box-sizing: border-box;
     }
     .message-wrapper.me { align-items: flex-end; }
     .msg, .msg-me {
@@ -70,12 +98,14 @@
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
+      z-index: 3;
     }
     .container-bottom {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
+      z-index: 3;
     }
     .chat-input-container {
       display: flex;
@@ -151,6 +181,8 @@
       border-radius: 12px;
       background: rgba(255,255,255,0.04);
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.25) rgba(255,255,255,0.06);
     }
     /* Tabellen-Styling à la ChatGPT */
     .table-wrapper table {
