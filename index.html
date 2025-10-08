@@ -1,149 +1,199 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M&A Matching Assistent</title>
-<style>
-  body {
-    margin: 0;
-    font-family: 'Open Sans', sans-serif;
-    background-color: #1d315a;
-    color: white;
-    padding-top: 80px;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-  }
-  header {
-    background-color: #1a2336;
-    padding: 16px 100px;
-    font-size: 24px;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .header-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .logo {
-    height: 32px;
-    width: auto;
-  }
-  .container {
-    padding: 0 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-    max-height: calc(100vh - 160px - 20px);
-    overflow-y: auto;
-  }
-  .message-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-  .message-wrapper.me { align-items: flex-end; }
-  .msg, .msg-me {
-    display: inline-block;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    margin-bottom: 4px;
-    padding: 10px 14px;
-    font-size: 16px;
-    white-space: pre-line;
-    word-break: break-word;
-    max-width: 70vw;
-  }
-  .msg { background-color: transparent; color: white; }
-  .msg-me { background-color: rgba(19,241,113); color: rgba(29,49,90); }
-  .msg-time { font-size: 12px; color: rgba(255,255,255,0.5); }
-  .centered-input {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-  }
-  .container-bottom {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .chat-input-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: rgba(19,241,113,0.1);
-    padding: 8px 12px;
-    border-radius: 30px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    width: 800px;
-    max-width: 90vw;
-  }
-  textarea {
-    flex: 1;
-    min-height: 20px;
-    max-height: 150px;
-    padding: 10px 14px;
-    border-color: transparent;
-    border-radius: 20px;
-    background-color: transparent;
-    outline: none;
-    font-size: 16px;
-    color: white;
-    resize: none;
-    overflow-y: auto;
-    transition: height 0.2s;
-  }
-  .chat-input-container button {
-    background-color: rgba(19,241,113,0.8);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    color: rgba(29,49,90,1);
-  }
-  .chat-input-container button:hover { background-color: rgba(19,241,113,1); }
-  .chat-input-container button svg { width: 18px; height: 18px; fill: currentColor; stroke: currentColor; }
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    width: fit-content;
-  }
-  .typing-dot {
-    width: 6px;
-    height: 6px;
-    background-color: #13F171;
-    border-radius: 50%;
-    animation: bounceY 1s infinite;
-  }
-  .typing-dot:nth-child(1) { animation-delay: 0s; }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounceY {
-    0%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-6px); }
-  }
-</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Markdown & Sanitizer (müssen vor deinem Script geladen werden) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M&A Matching Assistent</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background-color: #1d315a;
+      color: white;
+      padding-top: 80px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+    }
+    header {
+      background-color: #1a2336;
+      padding: 16px 100px;
+      font-size: 24px;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      height: 32px;
+      width: auto;
+    }
+    .container {
+      padding: 0 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      max-height: calc(100vh - 160px - 20px);
+      overflow-y: auto;
+    }
+    .message-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .message-wrapper.me { align-items: flex-end; }
+    .msg, .msg-me {
+      display: inline-block;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      margin-bottom: 4px;
+      padding: 10px 14px;
+      font-size: 16px;
+      white-space: pre-line;
+      word-break: break-word;
+      max-width: 70vw;
+    }
+    .msg { background-color: transparent; color: white; }
+    .msg-me { background-color: rgb(19,241,113); color: rgba(29,49,90,1); }
+    .msg-time { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .centered-input {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .container-bottom {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .chat-input-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(19,241,113,0.1);
+      padding: 8px 12px;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      width: 800px;
+      max-width: 90vw;
+    }
+    textarea {
+      flex: 1;
+      min-height: 20px;
+      max-height: 150px;
+      padding: 10px 14px;
+      border-color: transparent;
+      border-radius: 20px;
+      background-color: transparent;
+      outline: none;
+      font-size: 16px;
+      color: white;
+      resize: none;
+      overflow-y: auto;
+      transition: height 0.2s;
+    }
+    .chat-input-container button {
+      background-color: rgba(19,241,113,0.8);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: rgba(29,49,90,1);
+    }
+    .chat-input-container button:hover { background-color: rgba(19,241,113,1); }
+    .chat-input-container button svg { width: 18px; height: 18px; fill: currentColor; stroke: currentColor; }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #13F171;
+      border-radius: 50%;
+      animation: bounceY 1s infinite;
+    }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounceY {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    /* HTML-Rich-Content in Nachrichten erlauben */
+    .msg.rich { white-space: normal; }
+
+    /* Wrapper für breite Tabellen (horizontales Scrollen auf Mobile) */
+    .table-wrapper {
+      max-width: 70vw;          /* passt zu deiner max-width der Bubbles */
+      overflow-x: auto;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Tabellen-Styling à la ChatGPT */
+    .table-wrapper table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .table-wrapper th,
+    .table-wrapper td {
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;      /* verhindert unschöne Umbrüche bei kurzen Zellen */
+    }
+    .table-wrapper th {
+      background: rgba(255,255,255,0.06);
+      font-weight: 600;
+    }
+    .table-wrapper tr:nth-child(even) td {
+      background: rgba(255,255,255,0.03); /* zarte Zebra-Streifen */
+    }
+    /* Schöner Scrollbar (optional) */
+    .table-wrapper::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-wrapper::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+    }
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.25);
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 <header>
-    <div class="header-content">
-        <img src="https://dealflow.de/wp-content/uploads/2024/07/kontakt.svg" alt="Logo" class="logo">
-        <span>M&A-Matching Assistent</span>
-    </div></header>
+  <div class="header-content">
+    <img src="https://dealflow.de/wp-content/uploads/2024/07/kontakt.svg" alt="Logo" class="logo">
+    <span>M&A-Matching Assistent</span>
+  </div>
+</header>
 
 <div class="container" id="msgContainer">
   <div class="message-wrapper">
@@ -172,303 +222,351 @@ Sag mir einfach kurz welche Lead-ID du bewerten möchtest und ich lege los 🚀<
 </form>
 
 <script>
-const processedWorkflows = new Set();
-const msgContainer = document.getElementById('msgContainer');
-const chatField = document.getElementById('chatField');
-const chatForm = document.getElementById('chatForm');
-const micButton = document.getElementById('micButton');
-const chatHistory = [];
+  const processedWorkflows = new Set();
+  const msgContainer = document.getElementById('msgContainer');
+  const chatField = document.getElementById('chatField');
+  const chatForm = document.getElementById('chatForm');
+  const micButton = document.getElementById('micButton');
+  const chatHistory = [];
 
-// --------------------
-// Session-ID generieren
-// --------------------
-function generateSessionId() {
-  return 'sess-' + Math.random().toString(36).substr(2, 16);
-}
-const sessionId = generateSessionId();
-console.log("Session ID:", sessionId);
+  // --------------------
+  // Session-ID generieren
+  // --------------------
+  function generateSessionId() {
+    return 'sess-' + Math.random().toString(36).substr(2, 16);
+  }
+  const sessionId = generateSessionId();
+  console.log("Session ID:", sessionId);
 
-// --------------------
-// Supabase Client initialisieren
-// --------------------
-const supabaseClient = supabase.createClient(
-  "https://zjicxuyvlpmcwgdsbpqv.supabase.co",   // Supabase Project URL
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqaWN4dXl2bHBtY3dnZHNicHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDg5MjIsImV4cCI6MjA3NDEyNDkyMn0.9rD-epkdT8nvKJvLRikn8_4KHQSYH4uSgnfPrRV_xtw" // Public Key
-);
+  // --------------------
+  // Supabase Client initialisieren
+  // --------------------
+  const supabaseClient = supabase.createClient(
+    "https://zjicxuyvlpmcwgdsbpqv.supabase.co",   // Supabase Project URL
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqaWN4dXl2bHBtY3dnZHNicHF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDg5MjIsImV4cCI6MjA3NDEyNDkyMn0.9rD-epkdT8nvKJvLRikn8_4KHQSYH4uSgnfPrRV_xtw" // Public Key (ersetzen)
+  );
 
-// --------------------
-// Supabase Realtime Subscription
-// --------------------
-supabaseClient
-  .channel('chat-session-' + sessionId)
-  .on(
-    'postgres_changes',
-    {
-      event: '*', // INSERT & UPDATE
-      schema: 'public',
-      table: 'dealflow_matching_assistent',
-      filter: `session_id=eq.${sessionId}`
-    },
-    (payload) => {
-      const data = payload.new;
-      if (!data || !data.status || !data.workflow_id) return;
+  // --------------------
+  // Zeit formatieren
+  // --------------------
+  function formatTime(date) {
+    return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('welcomeTime').textContent = formatTime(new Date());
+  });
+
+  // --------------------
+  // Markdown & Tabellen Utils
+  // --------------------
+  function looksLikeFencedCode(md) {
+    return typeof md === 'string' && md.trim().startsWith('```') && md.trim().endsWith('```');
+  }
+  function smartUnfenceIfTable(md) {
+    if (!looksLikeFencedCode(md)) return md;
+    const inner = md.trim().replace(/^```[a-zA-Z0-9-]*\n?/, '').replace(/```$/, '');
+    const hasTable = /\|/.test(inner) && /^\s*\|?[-: ]+\|[-:| ]+$/m.test(inner);
+    return hasTable ? inner : md;
+  }
+  function renderMarkdownToSafeHtml(md) {
+    marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
+    const raw = marked.parse(md ?? "");
+    return DOMPurify.sanitize(raw);
+  }
+  function sanitizeHtml(html) {
+    return DOMPurify.sanitize(String(html ?? ""));
+  }
+  function wrapTables(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    tmp.querySelectorAll('table').forEach(tbl => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
+      tbl.parentNode.insertBefore(wrapper, tbl);
+      wrapper.appendChild(tbl);
+    });
+    return tmp.innerHTML;
+  }
+  function renderMessageContent(input) {
+    let text = input;
+    if (typeof text !== 'string') { try { text = JSON.stringify(text, null, 2); } catch { text = String(text); } }
+    if ((/^"\s*\\/.test(text)) || text.includes('\\n') || text.includes('\\"')) {
+      try { const maybe = JSON.parse(text); if (typeof maybe === 'string') text = maybe; } catch {}
+    }
+    if (/<\s*table[\s>]/i.test(text)) return wrapTables(sanitizeHtml(text));
+    text = smartUnfenceIfTable(text);
+    return wrapTables(renderMarkdownToSafeHtml(text));
+  }
+  function buildBotMessageHtml(mdText) {
+    const content = renderMessageContent(mdText);
+    return `
+      <div class="message-wrapper">
+        <div class="msg rich"><div class="stream-msg">${content}</div></div>
+        <div class="msg-time">${formatTime(new Date())}</div>
+      </div>
+    `;
+  }
+
+  // --------------------
+  // Workflow-ID generieren
+  // --------------------
+  function generateWorkflowId() {
+    return 'wf-' + Math.random().toString(36).substr(2, 16);
+  }
+
+  // --------------------
+  // Auto Resize Textarea
+  // --------------------
+  function autoResize(textarea) {
+    const style = window.getComputedStyle(textarea);
+    const lineHeight = parseInt(style.lineHeight) || 20;
+    const padding = parseInt(style.paddingTop) + parseInt(style.paddingBottom) || 0;
+    const minHeight = lineHeight + padding;
+    textarea.style.height = minHeight + 'px';
+
+    const linesByEnter = textarea.value.split('\n').length;
+    const approxCharsPerLine = Math.floor(textarea.clientWidth / 9);
+    let wrapLines = 0;
+    textarea.value.split('\n').forEach(line => {
+      wrapLines += Math.ceil(line.length / approxCharsPerLine) || 1;
+    });
+    const totalLines = Math.max(linesByEnter, wrapLines, 1);
+    const newHeight = totalLines * lineHeight + padding;
+    if (newHeight > minHeight) textarea.style.height = newHeight + 'px';
+  }
+
+  chatField.addEventListener('input', () => autoResize(chatField));
+  chatField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault();
+      chatField.value += '\n';
+      autoResize(chatField);
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.requestSubmit();
+    }
+  });
+
+  // --------------------
+  // Chat-Funktion
+  // --------------------
+  async function runStartAgent() {
+    const userMessage = chatField.value.trim();
+    if (!userMessage) return;
+    disableChatInput();
+    chatField.value = '';
+    autoResize(chatField);
+
+    if (chatForm.classList.contains('centered-input')) {
+      chatForm.classList.remove('centered-input');
+      chatForm.classList.add('container-bottom');
+    }
+
+    const now = new Date();
+
+    // User-Nachricht in die Historie speichern
+    chatHistory.push({
+      sender: 'user',
+      text: userMessage,
+      time: now
+    });
+    if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
+
+    // User-Bubble XSS-sicher einfügen
+    const userWrapper = document.createElement('div');
+    userWrapper.className = 'message-wrapper me';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-me';
+    bubble.textContent = userMessage; // verhindert HTML-Injection
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = formatTime(now);
+
+    userWrapper.appendChild(bubble);
+    userWrapper.appendChild(time);
+    msgContainer.appendChild(userWrapper);
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+
+    const typingDiv = addTypingIndicator();
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+
+    const workflowId = generateWorkflowId();
+
+    console.log('History an Agent:', chatHistory.slice(-10));
+
+    // --------------------
+    // Timeout setzen (5 Minuten)
+    // --------------------
+    const timeout = setTimeout(() => {
+      typingDiv.remove();
+      addBotMessage("😕 Ich konnte die Antwort leider nicht abrufen... Bitte ladde die Seite einmal neu🔄");
+      enableChatInput();
+    }, 5 * 60 * 1000); // 5 Minuten
+
+    const formattedHistory = chatHistory.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+    const finalHistory = [
+      { role: 'system', content: '👋 Hey! Ich bin dein virtueller Assistent der Dealflow GmbH und helfe dir dabei, deine perfekten Matches zwischen M&A-Beratern und potenziellen Kunden (Leads) zu finden 💼❤️‍🔥 Sag mir einfach kurz welche Lead-ID du bewerten möchtest und ich lege los 🚀' },
+      ...formattedHistory
+    ];
+
+    try {
+      const response = await fetch('https://automora.app.n8n.cloud/webhook/dealflow/start/test', { // <- deine Endpoint-URL eintragen
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: sessionId,
+          workflowId: workflowId,
+          text: userMessage,
+          history: finalHistory
+        })
+      });
+
+      clearTimeout(timeout);
+
+      enableChatInput();
+      const data = await response.json();
+      typingDiv.remove();
+
+      const botNow = new Date();
+
+      // Bot-Nachricht in die Historie speichern
+      chatHistory.push({
+        sender: 'bot',
+        text: data.reply || '⚠️ Es gab ein Problem beim Abrufen der Antwort.',
+        time: botNow
+      });
+      if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
+
+      // *** WICHTIG: Immer den Renderer benutzen, damit Tabellen formatiert sind ***
+      addBotMessage(data.reply || '⚠️ Es gab ein Problem beim Abrufen der Antwort.');
+
+    } catch (error) {
+      clearTimeout(timeout);
+      console.error('Fehler beim Abrufen der Antwort:', error);
+      typingDiv.remove();
+      addBotMessage("⚠️ Es gab ein Problem beim Abrufen der Antwort.");
+      enableChatInput();
+    }
+  }
+
+  function addTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.classList.add('message-wrapper');
+    typingDiv.innerHTML = `
+      <div class="typing-indicator">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    `;
+    msgContainer.appendChild(typingDiv);
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+    return typingDiv;
+  }
+
+  // *** NEU: Bot-Nachrichten laufen durch Markdown->HTML + Sanitizing + Table-Wrapper ***
+  function addBotMessage(mdText) {
+    const html = buildBotMessageHtml(mdText || "");
+    msgContainer.insertAdjacentHTML('beforeend', html);
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  }
+
+  function disableChatInput() {
+    chatField.disabled = true;
+    chatField.placeholder = "⏳ Bitte warten...";
+    chatForm.querySelectorAll("button").forEach(btn => btn.disabled = true);
+  }
+
+  function enableChatInput() {
+    chatField.disabled = false;
+    chatField.placeholder = "Hier kannst du mich fragen...";
+    chatForm.querySelectorAll("button").forEach(btn => btn.disabled = false);
+    chatField.focus();
+  }
+
+  // --------------------
+  // Supabase Realtime Subscription
+  // --------------------
+  supabaseClient
+    .channel('chat-session-' + sessionId)
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // INSERT & UPDATE
+        schema: 'public',
+        table: 'dealflow_matching_assistent',
+        filter: `session_id=eq.${sessionId}`
+      },
+      (payload) => {
+        const data = payload.new;
+        if (!data || !data.status || !data.workflow_id) return;
 
         // Abbrechen, wenn dieser Workflow schon verarbeitet wurde
         if (processedWorkflows.has(data.workflow_id)) return;
 
-      if (data.status === "in_progress") {
-        if (!document.getElementById("typing-" + data.workflow_id)) {
-          const typingDiv = addTypingIndicator();
-          typingDiv.id = "typing-" + data.workflow_id;
+        if (data.status === "in_progress") {
+          if (!document.getElementById("typing-" + data.workflow_id)) {
+            const typingDiv = addTypingIndicator();
+            typingDiv.id = "typing-" + data.workflow_id;
+          }
+          disableChatInput();
         }
-        disableChatInput();
-      } 
-      
-      else if (data.status === "done") {
-        // Als verarbeitet markieren
-        processedWorkflows.add(data.workflow_id);
+        else if (data.status === "done") {
+          // Als verarbeitet markieren
+          processedWorkflows.add(data.workflow_id);
 
-        const typingDiv = document.getElementById("typing-" + data.workflow_id);
-        if (typingDiv) typingDiv.remove();
+          const typingDiv = document.getElementById("typing-" + data.workflow_id);
+          if (typingDiv) typingDiv.remove();
 
-        addBotMessage(data.message || "✅ Sub-Workflow abgeschlossen!");
+          // *** Renderer verwenden, damit Tabellen sauber sind ***
+          addBotMessage(data.message || "✅ Sub-Workflow abgeschlossen!");
 
-        // --------------------------
-        // Bot-Nachricht in Chat-History speichern
-        // --------------------------
-        chatHistory.push({
+          // Bot-Nachricht in Chat-History speichern
+          chatHistory.push({
             sender: 'bot',
             text: data.message || "✅ Sub-Workflow abgeschlossen!",
             time: new Date()
-        });
+          });
+          if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
 
-        if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
-
-        enableChatInput();
+          enableChatInput();
+        }
       }
-    }
-  )
-  .subscribe();
-
-// --------------------
-// Zeit formatieren
-// --------------------
-function formatTime(date) {
-  return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('welcomeTime').textContent = formatTime(new Date());
-});
-
-// --------------------
-// Workflow-ID generieren
-// --------------------
-function generateWorkflowId() {
-    return 'wf-' + Math.random().toString(36).substr(2, 16);
-}
-
-// --------------------
-// Auto Resize Textarea
-// --------------------
-function autoResize(textarea) {
-  const style = window.getComputedStyle(textarea);
-  const lineHeight = parseInt(style.lineHeight) || 20;
-  const padding = parseInt(style.paddingTop) + parseInt(style.paddingBottom) || 0;
-  const minHeight = lineHeight + padding;
-  textarea.style.height = minHeight + 'px';
-
-  const linesByEnter = textarea.value.split('\n').length;
-  const approxCharsPerLine = Math.floor(textarea.clientWidth / 9);
-  let wrapLines = 0;
-  textarea.value.split('\n').forEach(line => {
-    wrapLines += Math.ceil(line.length / approxCharsPerLine) || 1;
-  });
-  const totalLines = Math.max(linesByEnter, wrapLines, 1);
-  const newHeight = totalLines * lineHeight + padding;
-  if (newHeight > minHeight) textarea.style.height = newHeight + 'px';
-}
-
-chatField.addEventListener('input', () => autoResize(chatField));
-chatField.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && e.shiftKey) {
-    e.preventDefault();
-    chatField.value += '\n';
-    autoResize(chatField);
-  } else if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    chatForm.requestSubmit();
-  }
-});
-
-// --------------------
-// Chat-Funktion
-// --------------------
-async function runStartAgent() {
-  const userMessage = chatField.value.trim();
-  if (!userMessage) return;
-  disableChatInput();
-  chatField.value = '';
-  autoResize(chatField);
-
-  if (chatForm.classList.contains('centered-input')) {
-    chatForm.classList.remove('centered-input');
-    chatForm.classList.add('container-bottom');
-  }
-
-  const now = new Date();
-
-  // User-Nachricht in die Historie speichern
-  chatHistory.push({
-    sender: 'user',
-    text: userMessage,
-    time: now
-  });
-    if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
-
-  msgContainer.innerHTML += `
-    <div class="message-wrapper me">
-      <div class="msg-me">${userMessage}</div>
-      <div class="msg-time">${formatTime(now)}</div>
-    </div>
-  `;
-  msgContainer.scrollTop = msgContainer.scrollHeight;
-
-  const typingDiv = addTypingIndicator();
-  msgContainer.scrollTop = msgContainer.scrollHeight;
-
-  const workflowId = generateWorkflowId();
-
-  console.log('History an Agent:', chatHistory.slice(-10));
+    )
+    .subscribe();
 
   // --------------------
-  // Timeout setzen (5 Minuten)
+  // Spracherkennung
   // --------------------
-  const timeout = setTimeout(() => {
-    typingDiv.remove();
-    addBotMessage("😕 Ich konnte die Antwort leider nicht abrufen... Bitte ladde die Seite einmal neu🔄");
-    enableChatInput();
-  }, 5 * 60 * 1000); // 5 Minuten
-
-  const formattedHistory = chatHistory.map(msg => ({
-  role: msg.sender === 'user' ? 'user' : 'assistant',
-  content: msg.text
-  }));
-  const finalHistory = [
-  { role: 'system', content: '👋 Hey! Ich bin dein virtueller Assistent der Dealflow GmbH und helfe dir dabei, deine perfekten Matches zwischen M&A-Beratern und potenziellen Kunden (Leads) zu finden 💼❤️‍🔥 Sag mir einfach kurz welche Lead-ID du bewerten möchtest und ich lege los 🚀' },
-  ...formattedHistory
-];
-
-  try {
-    const response = await fetch('https://automora.app.n8n.cloud/webhook/dealflow/start/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        sessionId: sessionId,
-        workflowId: workflowId,
-        text: userMessage,
-        history: finalHistory
-      })
-    });
-
-    clearTimeout(timeout);
-
-    enableChatInput();
-    const data = await response.json();
-    typingDiv.remove();
-
-    const botNow = new Date();
-
-    // Bot-Nachricht in die Historie speichern
-    chatHistory.push({
-        sender: 'bot',
-        text: data.reply || '⚠️ Es gab ein Problem beim Abrufen der Antwort.',
-        time: botNow
-    });
-    if (chatHistory.length > 10) chatHistory.splice(0, chatHistory.length - 10);
-
-    msgContainer.innerHTML += `
-      <div class="message-wrapper">
-        <div class="msg">${data.reply || '⚠️ Es gab ein Problem beim Abrufen der Antwort.'}</div>
-        <div class="msg-time">${formatTime(botNow)}</div>
-      </div>
-    `;
-    msgContainer.scrollTop = msgContainer.scrollHeight;
-
-  } catch (error) {
-    clearTimeout(timeout);
-    console.error('Fehler beim Abrufen der Antwort:', error);
-    typingDiv.remove();
-    addBotMessage("⚠️ Es gab ein Problem beim Abrufen der Antwort.");
-    enableChatInput();
+  let recognition;
+  if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+  } else if ('SpeechRecognition' in window) {
+    recognition = new SpeechRecognition();
   }
-}
 
-function addTypingIndicator() {
-  const typingDiv = document.createElement('div');
-  typingDiv.classList.add('message-wrapper');
-  typingDiv.innerHTML = `
-    <div class="typing-indicator">
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
-      <span class="typing-dot"></span>
-    </div>
-  `;
-  msgContainer.appendChild(typingDiv);
-  msgContainer.scrollTop = msgContainer.scrollHeight;
-  return typingDiv;
-}
+  if (recognition) {
+    recognition.lang = 'de-DE';
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
-function addBotMessage(text) {
-  const botNow = new Date();
-  msgContainer.innerHTML += `
-    <div class="message-wrapper">
-      <div class="msg">${text}</div>
-      <div class="msg-time">${formatTime(botNow)}</div>
-    </div>
-  `;
-  msgContainer.scrollTop = msgContainer.scrollHeight;
-}
+    recognition.onresult = (event) => {
+      chatField.value = event.results[0][0].transcript;
+      autoResize(chatField);
+    };
 
-function disableChatInput() {
-  chatField.disabled = true;
-  chatField.placeholder = "⏳ Bitte warten...";
-  chatForm.querySelectorAll("button").forEach(btn => btn.disabled = true);
-}
-
-function enableChatInput() {
-  chatField.disabled = false;
-  chatField.placeholder = "Hier kannst du mich fragen...";
-  chatForm.querySelectorAll("button").forEach(btn => btn.disabled = false);
-  chatField.focus();
-}
-
-// --------------------
-// Spracherkennung
-// --------------------
-let recognition;
-if ('webkitSpeechRecognition' in window) {
-  recognition = new webkitSpeechRecognition();
-} else if ('SpeechRecognition' in window) {
-  recognition = new SpeechRecognition();
-}
-
-if (recognition) {
-  recognition.lang = 'de-DE';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
-  recognition.onresult = (event) => {
-    chatField.value = event.results[0][0].transcript;
-    autoResize(chatField);
-  };
-
-  micButton.addEventListener('click', () => recognition.start());
-} else {
-  micButton.addEventListener('click', () => {
-    alert('Spracherkennung wird von diesem Browser nicht unterstützt.');
-  });
-}
+    micButton.addEventListener('click', () => recognition.start());
+  } else {
+    micButton.addEventListener('click', () => {
+      alert('Spracherkennung wird von diesem Browser nicht unterstützt.');
+    });
+  }
 </script>
 </body>
 </html>
