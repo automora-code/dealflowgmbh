@@ -136,6 +136,56 @@
     0%, 80%, 100% { transform: translateY(0); }
     40% { transform: translateY(-6px); }
   }
+
+   /* HTML-Rich-Content in Nachrichten erlauben */
+.msg.rich { white-space: normal; }
+
+/* Wrapper für breite Tabellen (horizontales Scrollen auf Mobile) */
+.table-wrapper {
+  max-width: 70vw;          /* passt zu deiner max-width der Bubbles */
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tabellen-Styling à la ChatGPT */
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;      /* verhindert unschöne Umbrüche bei kurzen Zellen */
+}
+
+.table-wrapper th {
+  background: rgba(255,255,255,0.06);
+  font-weight: 600;
+}
+
+.table-wrapper tr:nth-child(even) td {
+  background: rgba(255,255,255,0.03); /* zarte Zebra-Streifen */
+}
+
+/* Schöner Scrollbar (optional) */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 8px;
+}
 </style>
 </head>
 <body>
